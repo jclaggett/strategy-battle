@@ -1,0 +1,84 @@
+{
+  "config": {
+    "statPoints": 50,
+    "statMaxPer": 20,
+    "maxPlayerHp": 6,
+    "playerActionSlots": 3,
+    "allocatableStats": ["atk", "def", "mAtk", "mDef", "spd"],
+    "statLabels": { "atk": "ATK", "def": "DEF", "mAtk": "MAG", "mDef": "RES", "spd": "SPD" }
+  },
+
+  "attacks": {
+    "slash":       { "name": "Slash",        "type": "physical", "power": 40, "description": "A swift blade strike" },
+    "heavyStrike": { "name": "Heavy Strike", "type": "physical", "power": 65, "description": "Slow but powerful blow" },
+    "quickSlash":  { "name": "Quick Slash",  "type": "physical", "power": 25, "description": "Lightning-fast cut" },
+    "shieldBash":  { "name": "Shield Bash",  "type": "physical", "power": 30, "description": "Shield slam",
+                     "statFx": [{ "target": "enemy", "stat": "spd", "stages": -1 }] },
+    "backstab":    { "name": "Backstab",     "type": "physical", "power": 70, "description": "Devastating sneak attack" },
+    "cleave":      { "name": "Cleave",       "type": "physical", "power": 50, "description": "Wide sweeping strike" },
+    "hamstring":   { "name": "Hamstring",    "type": "physical", "power": 35, "description": "Crippling leg strike",
+                     "statFx": [{ "target": "enemy", "stat": "spd", "stages": -1 }] },
+
+    "fireball":    { "name": "Fireball",     "type": "magic",    "power": 55, "description": "Ball of fire",             "spread": true },
+    "iceSpear":    { "name": "Ice Spear",    "type": "magic",    "power": 50, "description": "Piercing shard of ice",     "range": "long" },
+    "thunder":     { "name": "Thunder",      "type": "magic",    "power": 60, "description": "Calls down lightning",      "spread": true },
+    "darkPulse":   { "name": "Dark Pulse",   "type": "magic",    "power": 45, "description": "Shadow energy",
+                     "statFx": [{ "target": "enemy", "stat": "mDef", "stages": -1 }] },
+    "holySmite":   { "name": "Holy Smite",   "type": "magic",    "power": 55, "description": "Radiant divine strike",    "range": "long" },
+    "arcaneBlast": { "name": "Arcane Blast", "type": "magic",    "power": 65, "description": "Raw magical force",         "range": "long" },
+
+    "heal":        { "name": "Heal",         "type": "heal",     "power": 40, "description": "Restores HP" },
+    "prayerHeal":  { "name": "Prayer",       "type": "heal",     "power": 55, "description": "Deep restorative prayer" },
+
+    "warCry":      { "name": "War Cry",      "type": "status",   "power": 0,  "description": "Boost own ATK",
+                     "statFx": [{ "target": "self", "stat": "atk", "stages": 1 }] },
+    "ironWall":    { "name": "Iron Wall",    "type": "status",   "power": 0,  "description": "Boost own DEF",
+                     "statFx": [{ "target": "self", "stat": "def", "stages": 1 }] },
+    "meditate":    { "name": "Meditate",     "type": "status",   "power": 0,  "description": "Boost own MAG",
+                     "statFx": [{ "target": "self", "stat": "mAtk", "stages": 1 }] },
+    "focus":       { "name": "Focus",        "type": "status",   "power": 0,  "description": "Boost own RES",
+                     "statFx": [{ "target": "self", "stat": "mDef", "stages": 1 }] },
+    "quicken":     { "name": "Quicken",      "type": "status",   "power": 0,  "description": "Boost own SPD",
+                     "statFx": [{ "target": "self", "stat": "spd", "stages": 1 }] },
+    "intimidate":  { "name": "Intimidate",   "type": "status",   "power": 0,  "description": "Lower enemy ATK",
+                     "statFx": [{ "target": "enemy", "stat": "atk", "stages": -1 }] },
+    "hex":         { "name": "Hex",          "type": "status",   "power": 0,  "description": "Lower enemy MAG",
+                     "statFx": [{ "target": "enemy", "stat": "mAtk", "stages": -1 }] },
+    "expose":      { "name": "Expose",       "type": "status",   "power": 0,  "description": "Lower enemy DEF",
+                     "statFx": [{ "target": "enemy", "stat": "def", "stages": -1 }] },
+
+    "protect":     { "name": "Protect",      "type": "protect",  "power": 0,  "description": "Shield yourself and your player from harm" }
+  },
+
+  "roster": {
+    "knight":   { "name": "Knight",   "hp": 120, "atk": 45, "def": 50, "mAtk": 15, "mDef": 30, "spd": 25,
+                  "pool": ["slash", "heavyStrike", "shieldBash", "cleave", "hamstring", "warCry", "ironWall", "protect"] },
+    "mage":     { "name": "Mage",     "hp":  75, "atk": 10, "def": 20, "mAtk": 55, "mDef": 45, "spd": 35,
+                  "pool": ["fireball", "iceSpear", "thunder", "arcaneBlast", "darkPulse", "meditate", "hex"] },
+    "cleric":   { "name": "Cleric",   "hp":  90, "atk": 20, "def": 35, "mAtk": 40, "mDef": 50, "spd": 30,
+                  "pool": ["heal", "prayerHeal", "holySmite", "iceSpear", "slash", "focus", "ironWall", "protect"] },
+    "rogue":    { "name": "Rogue",    "hp":  80, "atk": 50, "def": 25, "mAtk": 10, "mDef": 20, "spd": 55,
+                  "pool": ["quickSlash", "backstab", "slash", "hamstring", "cleave", "quicken", "expose"] },
+    "warlock":  { "name": "Warlock",  "hp":  85, "atk": 15, "def": 25, "mAtk": 50, "mDef": 40, "spd": 40,
+                  "pool": ["fireball", "thunder", "darkPulse", "heal", "arcaneBlast", "hex", "intimidate"] },
+    "paladin":  { "name": "Paladin",  "hp": 110, "atk": 40, "def": 45, "mAtk": 25, "mDef": 40, "spd": 20,
+                  "pool": ["heavyStrike", "shieldBash", "holySmite", "heal", "cleave", "warCry", "ironWall", "protect"] },
+    "ranger":   { "name": "Ranger",   "hp":  85, "atk": 45, "def": 30, "mAtk": 20, "mDef": 25, "spd": 50,
+                  "pool": ["quickSlash", "slash", "hamstring", "iceSpear", "cleave", "quicken", "intimidate"] },
+    "sorcerer": { "name": "Sorcerer", "hp":  70, "atk": 10, "def": 18, "mAtk": 60, "mDef": 42, "spd": 38,
+                  "pool": ["arcaneBlast", "fireball", "thunder", "iceSpear", "darkPulse", "meditate", "hex"] }
+  },
+
+  "playerActions": {
+    "block":         { "name": "🛡 Block",       "description": "Block 1 player HP damage this turn",  "cooldown": 2, "type": "defensive" },
+    "heal":          { "name": "💚 Heal",        "description": "Restore 1 player HP",                 "cooldown": 2, "type": "heal" },
+    "strike":        { "name": "⚔ Strike",      "description": "Deal 1 player HP damage to opponent",  "cooldown": 1, "type": "strike" },
+    "playerSlash":   { "name": "🗡 Slash",       "description": "Physical hit on enemy character",      "cooldown": 2, "type": "charAttack",
+                       "power": 20, "offenseStat": "atk", "offenseBase": 30, "targeting": "character" },
+    "playerBlast":   { "name": "✨ Blast",       "description": "Magic hit on enemy character",         "cooldown": 2, "type": "charAttack",
+                       "power": 20, "offenseStat": "mAtk", "offenseBase": 30, "targeting": "character" },
+    "playerShot":    { "name": "🏹 Shot",        "description": "Ranged hit — target character or player", "cooldown": 2, "type": "charAttack",
+                       "power": 10, "offenseStat": "atk", "offenseBase": 30, "targeting": "choice", "range": "long" },
+    "none":          { "name": "— Pass",          "description": "Do nothing",                           "cooldown": 0, "type": "pass" }
+  }
+}
