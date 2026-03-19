@@ -1,0 +1,11 @@
+{
+  "id": "cleric",
+  "name": "Cleric",
+  "hp": 90,
+  "atk": 20,
+  "def": 35,
+  "mAtk": 40,
+  "mDef": 50,
+  "spd": 30,
+  "pool": ["heal", "prayerHeal", "holySmite", "iceSpear", "slash", "focus", "ironWall", "protect"]
+}

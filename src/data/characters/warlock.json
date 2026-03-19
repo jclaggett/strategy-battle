@@ -1,0 +1,11 @@
+{
+  "id": "warlock",
+  "name": "Warlock",
+  "hp": 85,
+  "atk": 15,
+  "def": 25,
+  "mAtk": 50,
+  "mDef": 40,
+  "spd": 40,
+  "pool": ["fireball", "thunder", "darkPulse", "heal", "arcaneBlast", "hex", "intimidate"]
+}

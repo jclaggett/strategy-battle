@@ -1,0 +1,8 @@
+{
+  "id": "darkPulse",
+  "name": "Dark Pulse",
+  "type": "magic",
+  "power": 45,
+  "description": "Shadow energy",
+  "statFx": [{ "target": "enemy", "stat": "mDef", "stages": -1 }]
+}

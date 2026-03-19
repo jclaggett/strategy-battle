@@ -1,0 +1,7 @@
+{
+  "id": "cleave",
+  "name": "Cleave",
+  "type": "physical",
+  "power": 50,
+  "description": "Wide sweeping strike"
+}

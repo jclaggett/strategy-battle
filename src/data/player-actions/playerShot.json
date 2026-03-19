@@ -1,0 +1,12 @@
+{
+  "id": "playerShot",
+  "name": "🏹 Shot",
+  "description": "Ranged hit — target character or player",
+  "cooldown": 2,
+  "type": "charAttack",
+  "power": 10,
+  "offenseStat": "atk",
+  "offenseBase": 30,
+  "targeting": "choice",
+  "range": "long"
+}

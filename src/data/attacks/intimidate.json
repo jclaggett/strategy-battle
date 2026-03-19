@@ -1,0 +1,8 @@
+{
+  "id": "intimidate",
+  "name": "Intimidate",
+  "type": "status",
+  "power": 0,
+  "description": "Lower enemy ATK",
+  "statFx": [{ "target": "enemy", "stat": "atk", "stages": -1 }]
+}

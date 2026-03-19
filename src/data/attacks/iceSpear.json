@@ -1,0 +1,8 @@
+{
+  "id": "iceSpear",
+  "name": "Ice Spear",
+  "type": "magic",
+  "power": 50,
+  "description": "Piercing shard of ice",
+  "range": "long"
+}

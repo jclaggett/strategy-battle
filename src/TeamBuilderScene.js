@@ -33,13 +33,233 @@ class TeamBuilderScene extends Phaser.Scene {
     this.subtitleText = this.add.text(W / 2, 48, '', { fontSize: '13px', fill: '#aaa', fontFamily: 'monospace' }).setOrigin(0.5, 0);
     this.infoText = this.add.text(W / 2, H - 30, '', { fontSize: '11px', fill: '#666', fontFamily: 'monospace' }).setOrigin(0.5, 0.5);
 
-    // Start with player action selection
-    this.showPlayerActionSelect();
+    // Start with load/build choice
+    this.showTeamChoice();
   }
 
   clearButtons() {
     this.buttons.forEach(b => b.destroy());
     this.buttons = [];
+  }
+
+  // ── Team Save / Load ──────────────────────────────────────────
+  static STORAGE_KEY = 'strategyGame_savedTeams';
+
+  getSavedTeams() {
+    try {
+      return JSON.parse(localStorage.getItem(TeamBuilderScene.STORAGE_KEY)) || {};
+    } catch { return {}; }
+  }
+
+  saveTeamToStorage(name, teamData) {
+    const teams = this.getSavedTeams();
+    teams[name] = teamData;
+    localStorage.setItem(TeamBuilderScene.STORAGE_KEY, JSON.stringify(teams));
+  }
+
+  deleteTeamFromStorage(name) {
+    const teams = this.getSavedTeams();
+    delete teams[name];
+    localStorage.setItem(TeamBuilderScene.STORAGE_KEY, JSON.stringify(teams));
+  }
+
+  showTeamChoice() {
+    this.clearButtons();
+    const W = this.scale.width;
+    const H = this.scale.height;
+    const accent = this.currentPlayer === 1 ? '#53a8b6' : '#e94560';
+    const saved = this.getSavedTeams();
+    const teamNames = Object.keys(saved);
+
+    this.titleText.setText(`Player ${this.currentPlayer} — Team Setup`);
+    this.subtitleText.setText('Load a saved team or build a new one');
+
+    // Build New button
+    const newBg = this.add.rectangle(W / 2, 100, 300, 44, 0x166534).setStrokeStyle(2, 0x4ade80).setInteractive({ useHandCursor: true });
+    const newTxt = this.add.text(W / 2, 100, '+ Build New Team', { fontSize: '16px', fill: '#4ade80', fontFamily: 'monospace' }).setOrigin(0.5);
+    newBg.on('pointerover', () => newBg.setFillStyle(0x22c55e));
+    newBg.on('pointerout', () => newBg.setFillStyle(0x166534));
+    newBg.on('pointerdown', () => this.showPlayerActionSelect());
+    this.buttons.push(newBg, newTxt);
+
+    if (teamNames.length === 0) {
+      const noTeams = this.add.text(W / 2, 180, 'No saved teams yet', { fontSize: '13px', fill: '#555', fontFamily: 'monospace' }).setOrigin(0.5);
+      this.buttons.push(noTeams);
+    } else {
+      const header = this.add.text(W / 2, 160, '— Saved Teams —', { fontSize: '13px', fill: '#888', fontFamily: 'monospace' }).setOrigin(0.5);
+      this.buttons.push(header);
+
+      teamNames.forEach((name, i) => {
+        const team = saved[name];
+        const by = 200 + i * 56;
+
+        // Team summary
+        const charNames = team.characters.map(c => {
+          const r = ROSTER[c.key];
+          return r ? r.name : c.key;
+        }).join(', ');
+
+        const bg = this.add.rectangle(W / 2, by, 550, 46, 0x16213e).setStrokeStyle(1, 0x333333).setInteractive({ useHandCursor: true });
+        const nameT = this.add.text(W / 2 - 240, by - 8, name, { fontSize: '14px', fill: accent, fontFamily: 'monospace' });
+        const detailT = this.add.text(W / 2 - 240, by + 10, charNames, { fontSize: '10px', fill: '#888', fontFamily: 'monospace' });
+
+        bg.on('pointerover', () => bg.setStrokeStyle(2, parseInt(accent.replace('#', ''), 16)));
+        bg.on('pointerout', () => bg.setStrokeStyle(1, 0x333333));
+        bg.on('pointerdown', () => this.loadSavedTeam(name));
+
+        // Delete button
+        const delBg = this.add.rectangle(W / 2 + 250, by, 30, 30, 0x5c2a2a).setStrokeStyle(1, 0xe94560).setInteractive({ useHandCursor: true });
+        const delTxt = this.add.text(W / 2 + 250, by, '✕', { fontSize: '14px', fill: '#e94560', fontFamily: 'monospace' }).setOrigin(0.5);
+        delBg.on('pointerdown', (pointer) => {
+          pointer.event.stopPropagation();
+          this.deleteTeamFromStorage(name);
+          this.showTeamChoice();
+        });
+
+        this.buttons.push(bg, nameT, detailT, delBg, delTxt);
+      });
+    }
+
+    this.infoText.setText('');
+  }
+
+  loadSavedTeam(name) {
+    const saved = this.getSavedTeams();
+    const team = saved[name];
+    if (!team) return;
+
+    // Validate: check all characters and attacks still exist
+    for (const c of team.characters) {
+      if (!ROSTER[c.key]) { alert(`Character "${c.key}" no longer exists. Cannot load.`); return; }
+      for (const a of c.attacks) {
+        if (!ATTACKS[a]) { alert(`Attack "${a}" no longer exists. Cannot load.`); return; }
+      }
+    }
+    for (const pa of team.playerActions) {
+      if (pa !== 'none' && !PLAYER_ACTIONS[pa]) { alert(`Player action "${pa}" no longer exists. Cannot load.`); return; }
+    }
+
+    // Check characters aren't already taken by the other player
+    const conflicting = team.characters.filter(c => this.usedKeys.has(c.key));
+    if (conflicting.length > 0) {
+      const names = conflicting.map(c => ROSTER[c.key].name).join(', ');
+      alert(`${names} already picked by the other player. Cannot load.`);
+      return;
+    }
+
+    // Apply the team
+    const picks = team.characters.map(c => ({
+      key: c.key,
+      attacks: [...c.attacks],
+      bonuses: { ...c.bonuses },
+    }));
+
+    if (this.currentPlayer === 1) {
+      this.p1Picks = picks;
+      this.p1PlayerActions = [...team.playerActions];
+    } else {
+      this.p2Picks = picks;
+      this.p2PlayerActions = [...team.playerActions];
+    }
+
+    picks.forEach(p => this.usedKeys.add(p.key));
+    this.playerActionsDrafted[this.currentPlayer] = true;
+
+    // Advance
+    if (this.currentPlayer === 1) {
+      this.currentPlayer = 2;
+      this.selectedPlayerActions = [];
+      this.showTeamChoice();
+    } else {
+      this.scene.start('BattleScene', {
+        p1Picks: this.p1Picks,
+        p2Picks: this.p2Picks,
+        p1PlayerActions: this.p1PlayerActions,
+        p2PlayerActions: this.p2PlayerActions,
+      });
+    }
+  }
+
+  showSavePrompt() {
+    this.clearButtons();
+    const W = this.scale.width;
+    const H = this.scale.height;
+    const accent = this.currentPlayer === 1 ? '#53a8b6' : '#e94560';
+    const picks = this.currentPicks;
+
+    this.titleText.setText(`Player ${this.currentPlayer} — Team Complete!`);
+
+    // Show team summary
+    const summaryLines = picks.map(p => {
+      const char = ROSTER[p.key];
+      const atkNames = p.attacks.map(a => ATTACKS[a].name).join(', ');
+      const bonusStr = ALLOCATABLE_STATS
+        .filter(s => p.bonuses[s] > 0)
+        .map(s => `${STAT_LABELS[s]}+${p.bonuses[s]}`)
+        .join(' ');
+      return `${char.name}: ${atkNames}${bonusStr ? '  [' + bonusStr + ']' : ''}`;
+    });
+
+    const playerActions = this.currentPlayer === 1 ? this.p1PlayerActions : this.p2PlayerActions;
+    const paNames = playerActions.map(k => PLAYER_ACTIONS[k].name).join(', ');
+    summaryLines.push(`Actions: ${paNames}`);
+
+    summaryLines.forEach((line, i) => {
+      const t = this.add.text(W / 2, 90 + i * 24, line, { fontSize: '12px', fill: '#ccc', fontFamily: 'monospace' }).setOrigin(0.5);
+      this.buttons.push(t);
+    });
+
+    this.subtitleText.setText('Save this team for later?');
+
+    const saveY = 90 + summaryLines.length * 24 + 40;
+
+    // Save button
+    const saveBg = this.add.rectangle(W / 2 - 80, saveY, 200, 40, 0x166534).setStrokeStyle(2, 0x4ade80).setInteractive({ useHandCursor: true });
+    const saveTxt = this.add.text(W / 2 - 80, saveY, '💾 Save Team', { fontSize: '15px', fill: '#4ade80', fontFamily: 'monospace' }).setOrigin(0.5);
+    saveBg.on('pointerover', () => saveBg.setFillStyle(0x22c55e));
+    saveBg.on('pointerout', () => saveBg.setFillStyle(0x166534));
+    saveBg.on('pointerdown', () => {
+      const name = prompt('Enter a name for this team:');
+      if (name && name.trim()) {
+        this.saveTeamToStorage(name.trim(), {
+          characters: picks.map(p => ({
+            key: p.key,
+            attacks: [...p.attacks],
+            bonuses: { ...p.bonuses },
+          })),
+          playerActions: [...playerActions],
+        });
+        this.infoText.setText(`Team "${name.trim()}" saved!`).setFill('#4ade80');
+        // Brief delay then advance
+        this.time.delayedCall(800, () => this.advanceAfterTeam());
+      }
+    });
+    this.buttons.push(saveBg, saveTxt);
+
+    // Skip button
+    const skipBg = this.add.rectangle(W / 2 + 120, saveY, 160, 40, 0x333333).setStrokeStyle(1, 0x555555).setInteractive({ useHandCursor: true });
+    const skipTxt = this.add.text(W / 2 + 120, saveY, 'Skip →', { fontSize: '15px', fill: '#aaa', fontFamily: 'monospace' }).setOrigin(0.5);
+    skipBg.on('pointerover', () => skipBg.setFillStyle(0x444444));
+    skipBg.on('pointerout', () => skipBg.setFillStyle(0x333333));
+    skipBg.on('pointerdown', () => this.advanceAfterTeam());
+    this.buttons.push(skipBg, skipTxt);
+
+    this.infoText.setText('');
+  }
+
+  advanceAfterTeam() {
+    if (this.currentPlayer === 1) {
+      this.currentPlayer = 2;
+      this.selectedPlayerActions = [];
+      this.showTeamChoice();
+    } else {
+      this.scene.start('BattleScene', {
+        p1Picks: this.p1Picks,
+        p2Picks: this.p2Picks,
+        p1PlayerActions: this.p1PlayerActions,
+        p2PlayerActions: this.p2PlayerActions,
+      });
+    }
   }
 
   // ── Player Action Selection ────────────────────────────────────
@@ -315,17 +535,9 @@ class TeamBuilderScene extends Phaser.Scene {
 
     if (this.currentPicks.length < 3) {
       this.showCharacterSelect();
-    } else if (this.currentPlayer === 1) {
-      this.currentPlayer = 2;
-      this.selectedPlayerActions = [];
-      this.showPlayerActionSelect();
     } else {
-      this.scene.start('BattleScene', {
-        p1Picks: this.p1Picks,
-        p2Picks: this.p2Picks,
-        p1PlayerActions: this.p1PlayerActions,
-        p2PlayerActions: this.p2PlayerActions,
-      });
+      // Team complete — offer to save before advancing
+      this.showSavePrompt();
     }
   }
 }

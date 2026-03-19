@@ -1,0 +1,11 @@
+{
+  "id": "playerBlast",
+  "name": "✨ Blast",
+  "description": "Magic hit on enemy character",
+  "cooldown": 2,
+  "type": "charAttack",
+  "power": 20,
+  "offenseStat": "mAtk",
+  "offenseBase": 30,
+  "targeting": "character"
+}

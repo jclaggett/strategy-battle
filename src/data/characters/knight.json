@@ -1,0 +1,11 @@
+{
+  "id": "knight",
+  "name": "Knight",
+  "hp": 120,
+  "atk": 45,
+  "def": 50,
+  "mAtk": 15,
+  "mDef": 30,
+  "spd": 25,
+  "pool": ["slash", "heavyStrike", "shieldBash", "cleave", "hamstring", "warCry", "ironWall", "protect"]
+}

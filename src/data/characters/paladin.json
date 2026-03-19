@@ -1,0 +1,11 @@
+{
+  "id": "paladin",
+  "name": "Paladin",
+  "hp": 110,
+  "atk": 40,
+  "def": 45,
+  "mAtk": 25,
+  "mDef": 40,
+  "spd": 20,
+  "pool": ["heavyStrike", "shieldBash", "holySmite", "heal", "cleave", "warCry", "ironWall", "protect"]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "focus",
+  "name": "Focus",
+  "type": "status",
+  "power": 0,
+  "description": "Boost own RES",
+  "statFx": [{ "target": "self", "stat": "mDef", "stages": 1 }]
+}

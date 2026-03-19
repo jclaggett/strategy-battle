@@ -1,0 +1,8 @@
+{
+  "id": "holySmite",
+  "name": "Holy Smite",
+  "type": "magic",
+  "power": 55,
+  "description": "Radiant divine strike",
+  "range": "long"
+}

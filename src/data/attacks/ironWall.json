@@ -1,0 +1,8 @@
+{
+  "id": "ironWall",
+  "name": "Iron Wall",
+  "type": "status",
+  "power": 0,
+  "description": "Boost own DEF",
+  "statFx": [{ "target": "self", "stat": "def", "stages": 1 }]
+}

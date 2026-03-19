@@ -1,0 +1,11 @@
+{
+  "id": "sorcerer",
+  "name": "Sorcerer",
+  "hp": 70,
+  "atk": 10,
+  "def": 18,
+  "mAtk": 60,
+  "mDef": 42,
+  "spd": 38,
+  "pool": ["arcaneBlast", "fireball", "thunder", "iceSpear", "darkPulse", "meditate", "hex"]
+}

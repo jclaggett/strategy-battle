@@ -1,0 +1,7 @@
+{
+  "id": "heal",
+  "name": "💚 Heal",
+  "description": "Restore 1 player HP",
+  "cooldown": 2,
+  "type": "heal"
+}

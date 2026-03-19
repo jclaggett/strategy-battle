@@ -1,0 +1,8 @@
+{
+  "id": "hamstring",
+  "name": "Hamstring",
+  "type": "physical",
+  "power": 35,
+  "description": "Crippling leg strike",
+  "statFx": [{ "target": "enemy", "stat": "spd", "stages": -1 }]
+}

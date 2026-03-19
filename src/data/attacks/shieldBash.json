@@ -1,0 +1,8 @@
+{
+  "id": "shieldBash",
+  "name": "Shield Bash",
+  "type": "physical",
+  "power": 30,
+  "description": "Shield slam",
+  "statFx": [{ "target": "enemy", "stat": "spd", "stages": -1 }]
+}

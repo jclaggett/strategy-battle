@@ -1,0 +1,11 @@
+{
+  "id": "ranger",
+  "name": "Ranger",
+  "hp": 85,
+  "atk": 45,
+  "def": 30,
+  "mAtk": 20,
+  "mDef": 25,
+  "spd": 50,
+  "pool": ["quickSlash", "slash", "hamstring", "iceSpear", "cleave", "quicken", "intimidate"]
+}

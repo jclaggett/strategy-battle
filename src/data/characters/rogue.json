@@ -1,0 +1,11 @@
+{
+  "id": "rogue",
+  "name": "Rogue",
+  "hp": 80,
+  "atk": 50,
+  "def": 25,
+  "mAtk": 10,
+  "mDef": 20,
+  "spd": 55,
+  "pool": ["quickSlash", "backstab", "slash", "hamstring", "cleave", "quicken", "expose"]
+}

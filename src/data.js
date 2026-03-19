@@ -1,5 +1,9 @@
-// ── Data Layer — loads from data.json, exposes globals ──────────────
-// DATA is populated by loadGameData() before Phaser starts.
+// ── Data Layer — loads from src/data/ file tree ─────────────────────
+// Each entity is its own JSON file, discovered via index.json manifests.
+// To add a new attack/character/player-action:
+//   1. Create a .json file in the right folder
+//   2. Add its id to that folder's index.json
+//   That's it — the game picks it up automatically.
 
 let ATTACKS = {};
 let ROSTER = {};
@@ -11,21 +15,49 @@ let PLAYER_ACTION_SLOTS = 3;
 let ALLOCATABLE_STATS = ['atk', 'def', 'mAtk', 'mDef', 'spd'];
 let STAT_LABELS = { atk: 'ATK', def: 'DEF', mAtk: 'MAG', mDef: 'RES', spd: 'SPD' };
 
+const DATA_ROOT = 'src/data';
+const cacheBust = '?v=' + Date.now();
+
+async function fetchJSON(path) {
+  const resp = await fetch(path + cacheBust);
+  if (!resp.ok) throw new Error(`Failed to load ${path}: ${resp.status}`);
+  return resp.json();
+}
+
+async function loadFolder(folder) {
+  const index = await fetchJSON(`${DATA_ROOT}/${folder}/index.json`);
+  const entries = await Promise.all(
+    index.map(id => fetchJSON(`${DATA_ROOT}/${folder}/${id}.json`))
+  );
+  const result = {};
+  for (const entry of entries) {
+    result[entry.id] = entry;
+  }
+  return result;
+}
+
 async function loadGameData() {
-  const resp = await fetch('src/data.json?v=' + Date.now());
-  const data = await resp.json();
-
-  ATTACKS = data.attacks;
-  ROSTER = data.roster;
-  PLAYER_ACTIONS = data.playerActions;
-
-  const cfg = data.config;
+  // Load config
+  const cfg = await fetchJSON(`${DATA_ROOT}/config.json`);
   STAT_POINTS = cfg.statPoints;
   STAT_MAX_PER = cfg.statMaxPer;
   MAX_PLAYER_HP = cfg.maxPlayerHp;
   PLAYER_ACTION_SLOTS = cfg.playerActionSlots;
   ALLOCATABLE_STATS = cfg.allocatableStats;
   STAT_LABELS = cfg.statLabels;
+
+  // Load all entities in parallel
+  const [attacks, characters, playerActions] = await Promise.all([
+    loadFolder('attacks'),
+    loadFolder('characters'),
+    loadFolder('player-actions'),
+  ]);
+
+  ATTACKS = attacks;
+  ROSTER = characters;
+  PLAYER_ACTIONS = playerActions;
+
+  console.log(`Loaded ${Object.keys(ATTACKS).length} attacks, ${Object.keys(ROSTER).length} characters, ${Object.keys(PLAYER_ACTIONS).length} player actions`);
 }
 
 // ── Formulas (kept in JS — they need logic) ─────────────────────────

@@ -1,0 +1,8 @@
+{
+  "id": "arcaneBlast",
+  "name": "Arcane Blast",
+  "type": "magic",
+  "power": 65,
+  "description": "Raw magical force",
+  "range": "long"
+}

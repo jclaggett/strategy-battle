@@ -1,0 +1,7 @@
+{
+  "id": "prayerHeal",
+  "name": "Prayer",
+  "type": "heal",
+  "power": 55,
+  "description": "Deep restorative prayer"
+}

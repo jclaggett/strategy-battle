@@ -1,0 +1,8 @@
+{
+  "id": "quicken",
+  "name": "Quicken",
+  "type": "status",
+  "power": 0,
+  "description": "Boost own SPD",
+  "statFx": [{ "target": "self", "stat": "spd", "stages": 1 }]
+}

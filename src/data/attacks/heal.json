@@ -1,0 +1,7 @@
+{
+  "id": "heal",
+  "name": "Heal",
+  "type": "heal",
+  "power": 40,
+  "description": "Restores HP"
+}

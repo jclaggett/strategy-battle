@@ -1,0 +1,11 @@
+{
+  "id": "playerSlash",
+  "name": "🗡 Slash",
+  "description": "Physical hit on enemy character",
+  "cooldown": 2,
+  "type": "charAttack",
+  "power": 20,
+  "offenseStat": "atk",
+  "offenseBase": 30,
+  "targeting": "character"
+}
