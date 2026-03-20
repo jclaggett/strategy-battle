@@ -19,5 +19,9 @@
   "abilityPool": [
     "soulDrain",
     "curseAura"
+  ],
+  "types": [
+    "dark",
+    "fire"
   ]
 }

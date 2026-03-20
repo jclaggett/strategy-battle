@@ -20,5 +20,9 @@
   "abilityPool": [
     "holyShield",
     "avenger"
+  ],
+  "types": [
+    "holy",
+    "lightning"
   ]
 }

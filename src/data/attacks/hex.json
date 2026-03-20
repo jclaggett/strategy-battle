@@ -11,5 +11,6 @@
       "stages": -1
     }
   ],
-  "priority": 0
+  "priority": 0,
+  "damageType": "dark"
 }

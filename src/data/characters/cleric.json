@@ -20,5 +20,8 @@
   "abilityPool": [
     "divineAura",
     "martyr"
+  ],
+  "types": [
+    "holy"
   ]
 }

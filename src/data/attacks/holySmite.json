@@ -5,5 +5,6 @@
   "power": 55,
   "description": "Radiant divine strike",
   "range": "long",
-  "priority": 0
+  "priority": 0,
+  "damageType": "holy"
 }

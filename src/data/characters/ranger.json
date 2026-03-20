@@ -19,5 +19,8 @@
   "abilityPool": [
     "swiftFeet",
     "huntersMark"
+  ],
+  "types": [
+    "ice"
   ]
 }

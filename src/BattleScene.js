@@ -163,8 +163,10 @@ class BattleScene extends Phaser.Scene {
     const p1 = this.p1Active;
     const p2 = this.p2Active;
 
-    this.p1NameText.setText(p1.name);
-    this.p2NameText.setText(p2.name);
+    const p1Types = (p1.types || []).map(t => TYPE_CHART.types[t] ? TYPE_CHART.types[t].emoji : '').join('');
+    const p2Types = (p2.types || []).map(t => TYPE_CHART.types[t] ? TYPE_CHART.types[t].emoji : '').join('');
+    this.p1NameText.setText(`${p1Types} ${p1.name}`);
+    this.p2NameText.setText(`${p2.name} ${p2Types}`);
 
     const p1Pct = Math.max(0, p1.currentHp / p1.maxHp);
     const p2Pct = Math.max(0, p2.currentHp / p2.maxHp);
@@ -341,6 +343,7 @@ class BattleScene extends Phaser.Scene {
       const txt = this.add.text(bx, by - 8, atk.name, { fontSize: '12px', fill: '#fff', fontFamily: 'monospace' }).setOrigin(0.5);
 
       let subLabel = atk.type;
+      if (atk.damageType && TYPE_CHART.types[atk.damageType]) subLabel += ` ${TYPE_CHART.types[atk.damageType].emoji}`;
       if (atk.power > 0) subLabel += ` ${atk.power}`;
       if ((atk.priority || 0) > 0) subLabel += ` ⚡+${atk.priority}`;
       if ((atk.priority || 0) < 0) subLabel += ` 🐢${atk.priority}`;
@@ -665,7 +668,9 @@ class BattleScene extends Phaser.Scene {
       this.dealPlayerDamage(defenderPlayer, 1, `${attacker.name} fires ${atk.name} at Player ${defenderPlayer}`);
     } else {
       defender.currentHp = Math.max(0, defender.currentHp - dmg);
+      const { label: typeLabel } = typeEffectiveness(atk.damageType, defender.types || []);
       this.log.push(`${attacker.name} uses ${atk.name} → ${dmg} dmg to ${defender.name}!`);
+      if (typeLabel) this.log.push(typeLabel);
 
       // Fire onHit for defender, onDealDamage for attacker
       if (defender.alive) {

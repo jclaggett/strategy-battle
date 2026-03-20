@@ -4,5 +4,6 @@
   "type": "heal",
   "power": 40,
   "description": "Restores HP",
-  "priority": 0
+  "priority": 0,
+  "damageType": "holy"
 }

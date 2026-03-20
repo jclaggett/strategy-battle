@@ -358,7 +358,8 @@ class TeamBuilderScene extends Phaser.Scene {
       const by = 110 + row * 160;
 
       const card = this.add.rectangle(bx, by, 170, 140, 0x16213e).setStrokeStyle(1, 0x333333).setInteractive({ useHandCursor: true });
-      const nameT = this.add.text(bx, by - 50, char.name, { fontSize: '15px', fill: accent, fontFamily: 'monospace' }).setOrigin(0.5);
+      const typeEmojis = (char.types || []).map(t => TYPE_CHART.types[t] ? TYPE_CHART.types[t].emoji : '').join(' ');
+      const nameT = this.add.text(bx, by - 50, `${typeEmojis} ${char.name}`, { fontSize: '15px', fill: accent, fontFamily: 'monospace' }).setOrigin(0.5);
       const statsStr = `HP ${char.hp}  ATK ${char.atk}  DEF ${char.def}\nMAG ${char.mAtk}  RES ${char.mDef}  SPD ${char.spd}`;
       const statsT = this.add.text(bx, by - 15, statsStr, { fontSize: '10px', fill: '#888', fontFamily: 'monospace', align: 'center' }).setOrigin(0.5);
       const poolNames = char.pool.map(a => ATTACKS[a].name).join(', ');
@@ -408,7 +409,8 @@ class TeamBuilderScene extends Phaser.Scene {
         .setStrokeStyle(1, isSelected ? 0x4ade80 : 0x333333)
         .setInteractive({ useHandCursor: true });
 
-      let label = `${atk.name}  [${atk.type.toUpperCase()}]`;
+      const typeEmoji = atk.damageType && TYPE_CHART.types[atk.damageType] ? TYPE_CHART.types[atk.damageType].emoji + ' ' : '';
+      let label = `${typeEmoji}${atk.name}  [${atk.type.toUpperCase()}]`;
       if (atk.power > 0) label += `  Pow: ${atk.power}`;
       if (atk.spread) label += '  🌊';
       if (atk.range === 'long') label += '  🎯';

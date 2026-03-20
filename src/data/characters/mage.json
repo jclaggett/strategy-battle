@@ -19,5 +19,9 @@
   "abilityPool": [
     "arcaneShield",
     "spellweaver"
+  ],
+  "types": [
+    "fire",
+    "ice"
   ]
 }

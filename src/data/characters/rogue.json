@@ -19,5 +19,8 @@
   "abilityPool": [
     "ambush",
     "poisonBlade"
+  ],
+  "types": [
+    "dark"
   ]
 }

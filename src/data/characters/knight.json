@@ -20,5 +20,8 @@
   "abilityPool": [
     "bulwark",
     "battleCry"
+  ],
+  "types": [
+    "holy"
   ]
 }

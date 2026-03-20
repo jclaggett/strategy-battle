@@ -1,0 +1,25 @@
+{
+  "types": {
+    "fire": { "name": "Fire", "emoji": "🔥", "color": "#e94560" },
+    "ice": { "name": "Ice", "emoji": "❄️", "color": "#53a8b6" },
+    "lightning": { "name": "Lightning", "emoji": "⚡", "color": "#f0a500" },
+    "holy": { "name": "Holy", "emoji": "✨", "color": "#ffe066" },
+    "dark": { "name": "Dark", "emoji": "🌑", "color": "#9966cc" }
+  },
+  "weaknesses": {
+    "fire": ["ice"],
+    "ice": ["fire", "lightning"],
+    "lightning": ["dark"],
+    "holy": ["dark"],
+    "dark": ["holy", "lightning"]
+  },
+  "resistances": {
+    "fire": ["fire", "holy"],
+    "ice": ["ice"],
+    "lightning": ["lightning"],
+    "holy": ["holy", "fire"],
+    "dark": ["dark", "ice"]
+  },
+  "weakMultiplier": 2.0,
+  "resistMultiplier": 0.5
+}

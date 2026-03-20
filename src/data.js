@@ -9,6 +9,7 @@ let ATTACKS = {};
 let ROSTER = {};
 let PLAYER_ACTIONS = {};
 let ABILITIES = {};
+let TYPE_CHART = {};
 let STAT_POINTS = 50;
 let STAT_MAX_PER = 20;
 let MAX_PLAYER_HP = 6;
@@ -48,19 +49,21 @@ async function loadGameData() {
   STAT_LABELS = cfg.statLabels;
 
   // Load all entities in parallel
-  const [attacks, characters, playerActions, abilities] = await Promise.all([
+  const [attacks, characters, playerActions, abilities, typeChart] = await Promise.all([
     loadFolder('attacks'),
     loadFolder('characters'),
     loadFolder('player-actions'),
     loadFolder('abilities'),
+    fetchJSON(`${DATA_ROOT}/types.json`),
   ]);
 
   ATTACKS = attacks;
   ROSTER = characters;
   PLAYER_ACTIONS = playerActions;
   ABILITIES = abilities;
+  TYPE_CHART = typeChart;
 
-  console.log(`Loaded ${Object.keys(ATTACKS).length} attacks, ${Object.keys(ROSTER).length} characters, ${Object.keys(PLAYER_ACTIONS).length} player actions, ${Object.keys(ABILITIES).length} abilities`);
+  console.log(`Loaded ${Object.keys(ATTACKS).length} attacks, ${Object.keys(ROSTER).length} characters, ${Object.keys(PLAYER_ACTIONS).length} player actions, ${Object.keys(ABILITIES).length} abilities, ${Object.keys(TYPE_CHART.types).length} types`);
 }
 
 // ── Formulas (kept in JS — they need logic) ─────────────────────────
@@ -76,6 +79,34 @@ function effectiveStat(char, stat) {
   return Math.round(base * stageMultiplier(stage));
 }
 
+// Returns { multiplier, label } for an attack's damageType vs a defender's types
+function typeEffectiveness(atkDamageType, defenderTypes) {
+  if (!atkDamageType || !defenderTypes || defenderTypes.length === 0) {
+    return { multiplier: 1, label: '' };
+  }
+  const weakMult = TYPE_CHART.weakMultiplier || 2;
+  const resMult = TYPE_CHART.resistMultiplier || 0.5;
+  let multiplier = 1;
+  let dominated = ''; // track worst-case label
+
+  for (const defType of defenderTypes) {
+    const weaknesses = TYPE_CHART.weaknesses[defType] || [];
+    const resistances = TYPE_CHART.resistances[defType] || [];
+    if (weaknesses.includes(atkDamageType)) {
+      multiplier *= weakMult;
+      dominated = 'weak';
+    } else if (resistances.includes(atkDamageType)) {
+      multiplier *= resMult;
+      dominated = dominated || 'resist';
+    }
+  }
+
+  let label = '';
+  if (multiplier > 1) label = 'Super effective!';
+  else if (multiplier < 1) label = 'Not very effective...';
+  return { multiplier, label };
+}
+
 function calcDamage(attack, attacker, defender) {
   const atk = ATTACKS[attack];
   if (atk.type === 'heal') {
@@ -86,7 +117,12 @@ function calcDamage(attack, attacker, defender) {
   }
   const offense = atk.type === 'physical' ? effectiveStat(attacker, 'atk') : effectiveStat(attacker, 'mAtk');
   const defense = atk.type === 'physical' ? effectiveStat(defender, 'def') : effectiveStat(defender, 'mDef');
-  return Math.max(1, Math.round(atk.power * (offense / defense)));
+  const baseDmg = atk.power * (offense / defense);
+
+  // Apply type effectiveness
+  const defTypes = defender.types || [];
+  const { multiplier } = typeEffectiveness(atk.damageType, defTypes);
+  return Math.max(1, Math.round(baseDmg * multiplier));
 }
 
 // Player action attack damage — uses fixed stats from the action definition
