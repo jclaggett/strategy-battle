@@ -4,5 +4,12 @@
   "type": "status",
   "power": 0,
   "description": "Boost own RES",
-  "statFx": [{ "target": "self", "stat": "mDef", "stages": 1 }]
+  "statFx": [
+    {
+      "target": "self",
+      "stat": "mDef",
+      "stages": 1
+    }
+  ],
+  "priority": 0
 }

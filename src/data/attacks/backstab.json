@@ -3,5 +3,6 @@
   "name": "Backstab",
   "type": "physical",
   "power": 70,
-  "description": "Devastating sneak attack"
+  "description": "Devastating sneak attack",
+  "priority": 0
 }

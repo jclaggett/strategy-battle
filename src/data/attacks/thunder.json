@@ -4,5 +4,6 @@
   "type": "magic",
   "power": 60,
   "description": "Calls down lightning",
-  "spread": true
+  "spread": true,
+  "priority": 0
 }

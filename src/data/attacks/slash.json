@@ -3,5 +3,6 @@
   "name": "Slash",
   "type": "physical",
   "power": 40,
-  "description": "A swift blade strike"
+  "description": "A swift blade strike",
+  "priority": 0
 }

@@ -3,5 +3,6 @@
   "name": "Protect",
   "type": "protect",
   "power": 0,
-  "description": "Shield yourself and your player from harm"
+  "description": "Shield yourself and your player from harm",
+  "priority": 2
 }

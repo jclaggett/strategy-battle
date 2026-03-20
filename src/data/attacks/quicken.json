@@ -4,5 +4,12 @@
   "type": "status",
   "power": 0,
   "description": "Boost own SPD",
-  "statFx": [{ "target": "self", "stat": "spd", "stages": 1 }]
+  "statFx": [
+    {
+      "target": "self",
+      "stat": "spd",
+      "stages": 1
+    }
+  ],
+  "priority": 0
 }

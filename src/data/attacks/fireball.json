@@ -4,5 +4,6 @@
   "type": "magic",
   "power": 55,
   "description": "Ball of fire",
-  "spread": true
+  "spread": true,
+  "priority": 0
 }

@@ -3,5 +3,6 @@
   "name": "Prayer",
   "type": "heal",
   "power": 55,
-  "description": "Deep restorative prayer"
+  "description": "Deep restorative prayer",
+  "priority": 0
 }

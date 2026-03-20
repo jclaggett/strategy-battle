@@ -4,5 +4,6 @@
   "type": "magic",
   "power": 65,
   "description": "Raw magical force",
-  "range": "long"
+  "range": "long",
+  "priority": 0
 }

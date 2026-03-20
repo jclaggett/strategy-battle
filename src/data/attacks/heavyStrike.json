@@ -3,5 +3,6 @@
   "name": "Heavy Strike",
   "type": "physical",
   "power": 65,
-  "description": "Slow but powerful blow"
+  "description": "Slow but powerful blow",
+  "priority": -1
 }

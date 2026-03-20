@@ -4,5 +4,12 @@
   "type": "physical",
   "power": 30,
   "description": "Shield slam",
-  "statFx": [{ "target": "enemy", "stat": "spd", "stages": -1 }]
+  "statFx": [
+    {
+      "target": "enemy",
+      "stat": "spd",
+      "stages": -1
+    }
+  ],
+  "priority": 0
 }

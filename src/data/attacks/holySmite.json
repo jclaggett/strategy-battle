@@ -4,5 +4,6 @@
   "type": "magic",
   "power": 55,
   "description": "Radiant divine strike",
-  "range": "long"
+  "range": "long",
+  "priority": 0
 }

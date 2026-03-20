@@ -296,6 +296,8 @@ class BattleScene extends Phaser.Scene {
 
       let subLabel = atk.type;
       if (atk.power > 0) subLabel += ` ${atk.power}`;
+      if ((atk.priority || 0) > 0) subLabel += ` ⚡+${atk.priority}`;
+      if ((atk.priority || 0) < 0) subLabel += ` 🐢${atk.priority}`;
       if (atk.spread) subLabel += ' 🌊';
       if (atk.range === 'long') subLabel += ' 🎯';
       if (atk.statFx) {
@@ -471,7 +473,7 @@ class BattleScene extends Phaser.Scene {
       delay += 600;
     });
 
-    // Attacks by speed
+    // Attacks by priority bracket, then speed within each bracket
     this.time.delayedCall(delay, () => {
       const realAttacks = attacks.filter(a => {
         if (a.choice.type !== 'attack') return false;
@@ -492,38 +494,41 @@ class BattleScene extends Phaser.Scene {
         return;
       }
 
-      if (realAttacks.length === 2) {
-        const p1 = this.p1Active;
-        const p2 = this.p2Active;
-        const p1Spd = effectiveStat(p1, 'spd');
-        const p2Spd = effectiveStat(p2, 'spd');
-        let first, second;
-        if (p1Spd > p2Spd || (p1Spd === p2Spd && Math.random() < 0.5)) {
-          first = { attacker: p1, defender: p2, choice: this.p1Choice, player: 1 };
-          second = { attacker: p2, defender: p1, choice: this.p2Choice, player: 2 };
-        } else {
-          first = { attacker: p2, defender: p1, choice: this.p2Choice, player: 2 };
-          second = { attacker: p1, defender: p2, choice: this.p1Choice, player: 1 };
-        }
+      // Build ordered list: higher priority first, then speed within same bracket
+      const ordered = realAttacks.map(a => {
+        const atk = ATTACKS[a.choice.key];
+        const char = a.player === 1 ? this.p1Active : this.p2Active;
+        const opp = a.player === 1 ? this.p2Active : this.p1Active;
+        return {
+          attacker: char,
+          defender: opp,
+          choice: a.choice,
+          player: a.player,
+          priority: atk.priority || 0,
+          speed: effectiveStat(char, 'spd')
+        };
+      });
 
-        this.executeAttack(first.attacker, first.defender, first.choice.key, first.player, first.choice.targetPlayer);
-        this.refreshUI();
+      ordered.sort((a, b) => {
+        if (b.priority !== a.priority) return b.priority - a.priority; // higher priority first
+        if (b.speed !== a.speed) return b.speed - a.speed; // higher speed first
+        return Math.random() - 0.5; // tie-break randomly
+      });
 
-        this.time.delayedCall(800, () => {
-          if (second.attacker.currentHp > 0) {
-            this.executeAttack(second.attacker, second.defender, second.choice.key, second.player, second.choice.targetPlayer);
-            this.refreshUI();
-          }
+      // Execute sequentially with delays
+      const executeNext = (idx) => {
+        if (idx >= ordered.length) {
           this.time.delayedCall(600, () => this.checkRoundEnd());
-        });
-      } else {
-        const atk = realAttacks[0];
-        const attacker = atk.player === 1 ? this.p1Active : this.p2Active;
-        const defender = atk.player === 1 ? this.p2Active : this.p1Active;
-        this.executeAttack(attacker, defender, atk.choice.key, atk.player, atk.choice.targetPlayer);
-        this.refreshUI();
-        this.time.delayedCall(600, () => this.checkRoundEnd());
-      }
+          return;
+        }
+        const entry = ordered[idx];
+        if (entry.attacker.currentHp > 0) {
+          this.executeAttack(entry.attacker, entry.defender, entry.choice.key, entry.player, entry.choice.targetPlayer);
+          this.refreshUI();
+        }
+        this.time.delayedCall(800, () => executeNext(idx + 1));
+      };
+      executeNext(0);
     });
   }
 

@@ -3,5 +3,6 @@
   "name": "Heal",
   "type": "heal",
   "power": 40,
-  "description": "Restores HP"
+  "description": "Restores HP",
+  "priority": 0
 }

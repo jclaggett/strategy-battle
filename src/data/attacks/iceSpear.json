@@ -4,5 +4,6 @@
   "type": "magic",
   "power": 50,
   "description": "Piercing shard of ice",
-  "range": "long"
+  "range": "long",
+  "priority": 0
 }
