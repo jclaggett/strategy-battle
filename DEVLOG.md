@@ -111,6 +111,29 @@
 - 🌊 Spread: Fireball, Thunder
 - 🎯 Long-range: Ice Spear, Holy Smite, Arcane Blast
 
+## 2026-03-19 — Session with Caleb Claggett
+
+### Modular Data File System
+- Broke the single `data.json` into individual files under `src/data/`
+- Structure: `src/data/{attacks,characters,player-actions}/` with one JSON file per entity
+- Each folder has an `index.json` manifest listing all entity ids
+- `data.js` loader fetches manifests then loads all entities in parallel
+- To add new content: create a `.json` file in the right folder, add its id to `index.json`
+- Old `data.json` still exists but is no longer used
+
+### Team Save / Load System
+- Players can save and recall teams using browser localStorage
+- New **Team Choice Screen** at the start of each player's turn: "Build New Team" or load a saved one
+- **Save Prompt** appears after completing team building with a full summary (characters, attacks, stat bonuses, player actions)
+- Options: "💾 Save Team" (prompts for a name) or "Skip →"
+- Saved teams store: characters (with selected attacks + stat allocation) + player actions
+- Delete button (✕) on saved teams in the load screen
+- Validation on load: checks characters/attacks still exist in data files, prevents duplicate character picks
+
+### GitHub Repo
+- Project pushed to https://github.com/jclaggett/strategy-battle (public)
+- Can clone and run locally with any HTTP server
+
 ### Ideas / Future Work
 - Visual upgrades (sprites, animations, effects)
 - More characters and attacks
