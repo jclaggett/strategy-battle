@@ -655,22 +655,26 @@ class BattleScene extends Phaser.Scene {
     if (attacker.currentHp <= 0) return;
 
     const atk = ATTACKS[atkKey];
-    const dmg = calcDamage(atkKey, attacker, defender);
+    const result = calcDamageResult(atkKey, attacker, defender);
     const defenderPlayer = attackerPlayer === 1 ? 2 : 1;
 
     if (atk.type === 'heal') {
-      const healed = Math.min(-dmg, attacker.maxHp - attacker.currentHp);
+      const healed = Math.min(-result.damage, attacker.maxHp - attacker.currentHp);
       attacker.currentHp += healed;
       this.log.push(`${attacker.name} heals for ${healed} HP!`);
     } else if (atk.type === 'status') {
       this.log.push(`${attacker.name} uses ${atk.name}!`);
+    } else if (result.isImmune) {
+      // Immune: no damage, no secondary effects, no spread, no stat effects
+      this.log.push(`${attacker.name} uses ${atk.name} → ${defender.name} is immune!`);
+      return;
     } else if (targetPlayer) {
       this.dealPlayerDamage(defenderPlayer, 1, `${attacker.name} fires ${atk.name} at Player ${defenderPlayer}`);
     } else {
-      defender.currentHp = Math.max(0, defender.currentHp - dmg);
-      const { label: typeLabel } = typeEffectiveness(atk.damageType, defender.types || []);
-      this.log.push(`${attacker.name} uses ${atk.name} → ${dmg} dmg to ${defender.name}!`);
-      if (typeLabel) this.log.push(typeLabel);
+      defender.currentHp = Math.max(0, defender.currentHp - result.damage);
+      const critTag = result.isCrit ? ' 💥' : '';
+      this.log.push(`${attacker.name} uses ${atk.name} → ${result.damage} dmg to ${defender.name}!${critTag}`);
+      if (result.typeLabel) this.log.push(result.typeLabel);
 
       // Fire onHit for defender, onDealDamage for attacker
       if (defender.alive) {
@@ -691,6 +695,7 @@ class BattleScene extends Phaser.Scene {
       }
     }
 
+    // Stat effects only apply if not immune
     if (atk.statFx) {
       atk.statFx.forEach(fx => {
         const target = fx.target === 'self' ? attacker : defender;

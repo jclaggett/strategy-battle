@@ -79,50 +79,100 @@ function effectiveStat(char, stat) {
   return Math.round(base * stageMultiplier(stage));
 }
 
-// Returns { multiplier, label } for an attack's damageType vs a defender's types
+// Returns { multiplier, label, isCrit, isImmune } for an attack's damageType vs a defender's types
 function typeEffectiveness(atkDamageType, defenderTypes) {
   if (!atkDamageType || !defenderTypes || defenderTypes.length === 0) {
-    return { multiplier: 1, label: '' };
+    return { multiplier: 1, label: '', isCrit: false, isImmune: false };
   }
   const weakMult = TYPE_CHART.weakMultiplier || 2;
+  const critWeakMult = TYPE_CHART.critWeakMultiplier || 2.5;
   const resMult = TYPE_CHART.resistMultiplier || 0.5;
+
   let multiplier = 1;
-  let dominated = ''; // track worst-case label
+  let isCrit = false;
+  let isImmune = false;
 
   for (const defType of defenderTypes) {
+    const immunities = (TYPE_CHART.immunities && TYPE_CHART.immunities[defType]) || [];
+    if (immunities.includes(atkDamageType)) {
+      isImmune = true;
+    }
+  }
+
+  // Immunity on any type overrides everything
+  if (isImmune) {
+    return { multiplier: 0, label: 'Immune!', isCrit: false, isImmune: true };
+  }
+
+  for (const defType of defenderTypes) {
+    const critWeaknesses = (TYPE_CHART.critWeaknesses && TYPE_CHART.critWeaknesses[defType]) || [];
     const weaknesses = TYPE_CHART.weaknesses[defType] || [];
     const resistances = TYPE_CHART.resistances[defType] || [];
-    if (weaknesses.includes(atkDamageType)) {
+
+    if (critWeaknesses.includes(atkDamageType)) {
+      // Critically effective: use crit multiplier for this type and flag as crit
+      multiplier *= critWeakMult;
+      isCrit = true;
+    } else if (weaknesses.includes(atkDamageType)) {
       multiplier *= weakMult;
-      dominated = 'weak';
     } else if (resistances.includes(atkDamageType)) {
       multiplier *= resMult;
-      dominated = dominated || 'resist';
     }
   }
 
   let label = '';
-  if (multiplier > 1) label = 'Super effective!';
+  if (isCrit && multiplier > 1) label = 'Critically effective!!';
+  else if (isCrit) label = 'Critical hit!'; // crit flag active but multiplier reduced by dual-type resist
+  else if (multiplier > 1) label = 'Super effective!';
   else if (multiplier < 1) label = 'Not very effective...';
-  return { multiplier, label };
+  return { multiplier, label, isCrit, isImmune };
 }
 
-function calcDamage(attack, attacker, defender) {
+// Returns { damage, isCrit, isImmune, typeLabel }
+function calcDamageResult(attack, attacker, defender) {
   const atk = ATTACKS[attack];
   if (atk.type === 'heal') {
-    return -Math.round(atk.power * (effectiveStat(attacker, 'mAtk') / 30));
+    return { damage: -Math.round(atk.power * (effectiveStat(attacker, 'mAtk') / 30)), isCrit: false, isImmune: false, typeLabel: '' };
   }
   if (atk.type === 'status' || atk.type === 'protect') {
-    return 0;
+    return { damage: 0, isCrit: false, isImmune: false, typeLabel: '' };
   }
-  const offense = atk.type === 'physical' ? effectiveStat(attacker, 'atk') : effectiveStat(attacker, 'mAtk');
-  const defense = atk.type === 'physical' ? effectiveStat(defender, 'def') : effectiveStat(defender, 'mDef');
-  const baseDmg = atk.power * (offense / defense);
 
-  // Apply type effectiveness
+  // Check type effectiveness first
   const defTypes = defender.types || [];
-  const { multiplier } = typeEffectiveness(atk.damageType, defTypes);
-  return Math.max(1, Math.round(baseDmg * multiplier));
+  const { multiplier, label: typeLabel, isCrit, isImmune } = typeEffectiveness(atk.damageType, defTypes);
+
+  if (isImmune) {
+    return { damage: 0, isCrit: false, isImmune: true, typeLabel };
+  }
+
+  const offStat = atk.type === 'physical' ? 'atk' : 'mAtk';
+  const defStat = atk.type === 'physical' ? 'def' : 'mDef';
+
+  let offense, defense;
+  if (isCrit) {
+    // Crit ignores attacker's offensive debuffs and defender's defensive buffs
+    const critBonusMult = TYPE_CHART.critBonusMultiplier || 1.25;
+    const atkStage = (attacker.stages && attacker.stages[offStat]) || 0;
+    const defStage = (defender.stages && defender.stages[defStat]) || 0;
+    // Use effective stat but floor offensive stage at 0 (ignore drops) and cap defensive stage at 0 (ignore buffs)
+    const offStageUsed = Math.max(0, atkStage);
+    const defStageUsed = Math.min(0, defStage);
+    offense = Math.round(attacker[offStat] * stageMultiplier(offStageUsed));
+    defense = Math.round(defender[defStat] * stageMultiplier(defStageUsed));
+    const baseDmg = atk.power * (offense / defense) * multiplier * critBonusMult;
+    return { damage: Math.max(1, Math.round(baseDmg)), isCrit: true, isImmune: false, typeLabel };
+  } else {
+    offense = effectiveStat(attacker, offStat);
+    defense = effectiveStat(defender, defStat);
+    const baseDmg = atk.power * (offense / defense) * multiplier;
+    return { damage: Math.max(1, Math.round(baseDmg)), isCrit: false, isImmune: false, typeLabel };
+  }
+}
+
+// Backward-compatible wrapper (returns just the number)
+function calcDamage(attack, attacker, defender) {
+  return calcDamageResult(attack, attacker, defender).damage;
 }
 
 // Player action attack damage — uses fixed stats from the action definition
